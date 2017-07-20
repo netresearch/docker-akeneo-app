@@ -1,0 +1,33 @@
+# Put this file next to your docker-compose.yml and
+# run e.g. docker-compose up for local development
+version: '3'
+services:
+  app:
+    build:
+      context: "."
+      args:
+      - "AKENEO_VERSION=${AKENEO_VERSION}"
+      - "AKENEO_DIRECTORY=${AKENEO_DIRECTORY}"
+      - "PACKAGES_DIRECTORY=${PACKAGES_DIRECTORY}"
+    volumes:
+      - "bin:/opt/akeneo/bin"
+  web:
+    environment:
+      AWAIT_AKENEO_BUILD_DONE: 1
+    volumes:
+      - "./html:${AKENEO_DIRECTORY}"
+      - "./packages:${PACKAGES_DIRECTORY}"
+  builder:
+    image: netresearch/akeneo-php:5
+    environment:
+      - "AKENEO_VERSION"
+      - "AKENEO_DIRECTORY"
+      - "PACKAGES_DIRECTORY"
+    volumes:
+      - "./html:${AKENEO_DIRECTORY}"
+      - "./packages:${PACKAGES_DIRECTORY}"
+      - "bin:/opt/akeneo/bin/"
+    command: [ "/opt/akeneo/bin/build-akeneo" ]
+
+volumes:
+  bin:

@@ -1,0 +1,24 @@
+{
+    "name": "netresearch/akeneo-bootstrap",
+    "description": "Bootstrap Akeneo before run",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Christian Opitz",
+            "email": "christian.opitz@netresearch.nr"
+        }
+    ],
+    "replace": {
+        "incenteev/composer-parameter-handler": "*"
+    },
+    "require": {
+        "symfony/console": "^2.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Netresearch\\AkeneoBootstrap\\": "src/",
+            "Incenteev\\ParameterHandler\\": "parameter_handler/"
+        }
+    },
+    "bin": ["bin/akeneo-bootstrap"]
+}

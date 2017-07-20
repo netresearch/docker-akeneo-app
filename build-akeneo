@@ -1,0 +1,52 @@
+#!/bin/bash
+set -e
+
+if [ -z "$AKENEO_VERSION" ]; then echo "Missing env variable AKENEO_VERSION"; exit 1; fi
+if [ -z "$AKENEO_DIRECTORY" ]; then echo "Missing env variable AKENEO_DIRECTORY" && exit 1; fi
+if [ -z "$PACKAGES_DIRECTORY" ]; then echo "Missing env variable PACKAGES_DIRECTORY" && exit 1; fi
+
+if [ "$1" == "--check" ]; then
+    echo "Check OK"
+    exit 0
+fi
+
+mkdir -p "${PACKAGES_DIRECTORY}/akeneo/pim-community-dev"
+cd "${PACKAGES_DIRECTORY}/akeneo/pim-community-dev"
+
+if [ ! -f "./composer.json" ]; then
+    echo "Fetching akeneo/pim-community-dev (v${AKENEO_VERSION})"
+    curl -sL https://github.com/akeneo/pim-community-dev/archive/v${AKENEO_VERSION}.tar.gz | tar -xz --strip-components=1
+fi
+
+php << 'PHP'
+    <?php
+    $json = json_decode(file_get_contents("composer.json"), true);
+    $json["version"] = getenv("AKENEO_VERSION");
+    file_put_contents("composer.json", json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+    ?>
+PHP
+
+mkdir -p $AKENEO_DIRECTORY
+cd $AKENEO_DIRECTORY
+if [ ! -f "./composer.json" ]; then
+    composer create-project --no-install akeneo/pim-community-standard . $AKENEO_VERSION
+fi
+
+composer config preferred-install 'dist'
+php << 'PHP'
+    <?php
+    $json = json_decode(file_get_contents("composer.json"), true);
+    $json["repositories"] = [
+        "local" => [
+            "type" => "path",
+            "url" => getenv("PACKAGES_DIRECTORY") . "/*/*"
+        ]
+    ];
+    $json["extra"]["incenteev-parameters"] = "Handled/replaced by netresearch/akeneo-bootstrap";
+    file_put_contents("composer.json", json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+    ?>
+PHP
+
+composer require "$@" doctrine/mongodb-odm-bundle netresearch/akeneo-bootstrap
+
+touch ./vendor/akeneo-build-done

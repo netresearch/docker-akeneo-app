@@ -1,0 +1,41 @@
+version: '3'
+services:
+  app:
+    image: "netresearch/akeneo-app"
+    volumes:
+      - "akeneo:${AKENEO_DIRECTORY}"
+      - "packages:${PACKAGES_DIRECTORY}"
+  web:
+    image: "netresearch/akeneo-php:apache"
+    restart: "always"
+    links:
+      - "mariadb:db"
+      - "mongo:mongodb"
+    ports:
+      - "8080:80"
+    volumes:
+      - "akeneo:${AKENEO_DIRECTORY}"
+      - "packages:${PACKAGES_DIRECTORY}"
+    environment:
+      DATABASE_HOST: "db"
+      DATABASE_NAME: "akeneo"
+      DATABASE_USER: "akeneo"
+      DATABASE_PASSWORD: "akeneo"
+      MONGODB_SERVER: "mongodb://mongodb:27017"
+      MONGODB_DATABASE: "akeneo"
+      PIM_CATALOG_PRODUCT_STORAGE_DRIVER: "doctrine/mongodb-odm"
+  mariadb:
+    image: "mariadb"
+    restart: "always"
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: "akeneo"
+      MYSQL_USER: "akeneo"
+      MYSQL_PASSWORD: "akeneo"
+  mongo:
+    image: "mongo"
+    restart: "always"
+
+volumes:
+  akeneo:
+  packages:
