@@ -1,0 +1,188 @@
+#!/bin/sh
+set -e
+
+unset AKENEO_VERSION
+INSTALL_DIRECTORY=$(pwd)
+unset PACKAGES_DIRECTORY
+COMMAND="$1"
+shift
+
+while getopts hfi:p:v: arg; do
+  case $arg in
+    h )  SHOW_HELP=true ;;
+    f )  FORCE=true ;;
+    i )  if [ "$OPTARG" != "" ]; then INSTALL_DIRECTORY="$OPTARG"; fi ;;
+    p )  if [ "$OPTARG" != "" ]; then PACKAGES_DIRECTORY="$OPTARG"; fi ;;
+    v )  if [ "$OPTARG" != "" ]; then AKENEO_VERSION="$OPTARG"; fi ;;
+    \? ) echo "Run $0 -h to show help" exit 2 ;;
+  esac
+done
+shift $((OPTIND-1)) # remove parsed options and args from $@ list
+
+if [ $SHOW_HELP ]; then
+echo "
+Akeneo Bootstrap Project Setup
+
+This script sets up the sources for an Akeneo Project
+
+Usage:
+  $0 command -v AKENEO_VERSION [options]
+
+Commands:
+  create   Create a project
+  upgrade  Upgrade a project
+
+Options:
+  -h                     Display this help message
+  -v=AKENEO_VERSION      The (new) Akeneo version to install (required)
+  -p=PACKAGES_DIRECTORY  Path to a local package directory
+  -i=INSTALL_DIRECTORY   The installation directory (default: $(pwd) )
+  -f                     When creating:
+                           upgrade project when INSTALL_DIRECTORY is
+                           not empty
+                         When upgrading:
+                           create project when no composer.json could
+                           be found in INSTALL_DIRECTORY
+  -s                     Exit with code 0 even on errors"
+exit 0
+fi
+if [ -z "$AKENEO_VERSION" ]; then
+    echo "Missing option: -v"
+    echo "Run $0 -h to show help"
+    exit 1
+fi
+if [ -e "$INSTALL_DIRECTORY" ] && [ ! -d "$INSTALL_DIRECTORY" ]; then
+    echo "$INSTALL_DIRECTORY is not a directory"
+    exit 1
+fi
+if [ "$COMMAND" = "create" ]
+then
+    if [ -e "$INSTALL_DIRECTORY" ] && [ "$(ls -A $INSTALL_DIRECTORY)" ]
+    then
+        if [ "$FORCE" ]
+        then
+            COMMAND="upgrade"
+        else
+            echo "$INSTALL_DIRECTORY is not empty - run with -f to create/upgrade the project anyway"
+            exit 1
+        fi
+    fi
+else
+    if [ "$COMMAND" != "upgrade" ]
+    then
+        echo "Missing or invalid command"
+        echo "Run $0 -h to show help"
+        exit 1
+    fi
+    if [ ! -f "$INSTALL_DIRECTORY/composer.json" ]
+    then
+        echo "No composer.json found - run with -f to upgrade/create the project anyway"
+        exit 1
+    fi
+fi
+
+
+mkdir -p "/tmp/akeneo-pim-community-dev"
+cd "/tmp/akeneo-pim-community-dev"
+if [ ! -f "./composer.json" ]; then
+    echo "Fetching akeneo/pim-community-dev (v${AKENEO_VERSION})..."
+    curl -sL https://github.com/akeneo/pim-community-dev/archive/v${AKENEO_VERSION}.tar.gz | tar -xz --strip-components=1
+fi
+
+AKENEO_VERSION="$AKENEO_VERSION" php << 'PHP'
+    <?php
+    $json = json_decode(file_get_contents("composer.json"), true);
+    $json = array_merge(["name" => $json["name"], "version" => getenv("AKENEO_VERSION")], $json);
+    file_put_contents("composer.json", json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+    ?>
+PHP
+
+mkdir -p "$INSTALL_DIRECTORY"
+cd "$INSTALL_DIRECTORY"
+if [ "$COMMAND" = "create" ];
+then
+    echo "Creating project..."
+    composer create-project --no-install akeneo/pim-community-standard "$INSTALL_DIRECTORY" "$AKENEO_VERSION"
+else
+    echo "Upgrading project"
+    TMP_DIRECTORY="/tmp/akeneo-pim-community-standard"
+    rm -rf "$TMP_DIRECTORY"
+    composer create-project --no-install akeneo/pim-community-standard "$TMP_DIRECTORY" "$AKENEO_VERSION"
+    cd "$TMP_DIRECTORY"
+    if [ -f "$INSTALL_DIRECTORY/composer.json" ]; then
+INSTALL_DIRECTORY="$INSTALL_DIRECTORY" php << 'PHP'
+    <?php
+    $origJson = json_decode(file_get_contents(getenv('INSTALL_DIRECTORY') . "/composer.json"), true);
+    $json = json_decode(file_get_contents("composer.json"), true);
+    unset($origJson["require"]["doctrine/mongodb-odm-bundle"]);
+    unset($origJson["require"]["netresearch/akeneo-bootstrap"]);
+    $json["require"] = array_merge($origJson["require"], $json["require"]);
+    $json["tmp-repositories"] = (array) $origJson["repositories"];
+    file_put_contents("composer.json", json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+    ?>
+PHP
+    fi
+fi
+
+composer config preferred-install 'dist'
+PACKAGES_DIRECTORY="$PACKAGES_DIRECTORY" php << 'PHP'
+    <?php
+    $json = json_decode(file_get_contents("composer.json"), true);
+    $json["repositories"] = array_merge((array) $json["tmp-repositories"], [
+        "akeneo" => [
+            "type" => "path",
+            "url" => "/tmp/akeneo-pim-community-dev",
+            "options" => ["symlink" => false]
+        ]
+    ]);
+    if ($packagesDirectory = getenv("PACKAGES_DIRECTORY")) {
+        $json["repositories"]["local"] = [
+            "type" => "path",
+            "url" => "$packagesDirectory/*/*"
+        ];
+    }
+    unset($json["tmp-repositories"]);
+
+    $json["extra"]["incenteev-parameters"] = "Handled/replaced by netresearch/akeneo-bootstrap";
+    file_put_contents("composer.json", json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+    ?>
+PHP
+
+if [ "$COMMAND" = "upgrade" ]; then
+    echo "Copying new files..."
+    cp -r "$TMP_DIRECTORY"/* "$INSTALL_DIRECTORY/"
+    echo "Removing obsolete files..."
+    cd "$INSTALL_DIRECTORY"
+    for DIR in $(find . -not -path "./vendor" -not -path "./vendor/*" -type d  -depth | cut -c 3-)
+    do
+        if [ ! -e "$TMP_DIRECTORY/$DIR" ]
+        then
+            echo "Removing $INSTALL_DIRECTORY/$DIR"
+            rm -rf "$INSTALL_DIRECTORY/$DIR"
+        fi
+    done
+    for FILE in $(find . -not -path "./vendor" -not -path "./vendor/*" -not -type d | cut -c 3-)
+    do
+        if [ ! -e "$TMP_DIRECTORY/$FILE" ] && [ "$FILE" != "composer.lock" ]
+        then
+            echo "Removing $INSTALL_DIRECTORY/$FILE"
+            rm -f "$INSTALL_DIRECTORY/$FILE"
+        fi
+    done
+    rm -rf "$TMP_DIRECTORY"
+fi
+
+echo "Installing..."
+composer require "doctrine/mongodb-odm-bundle" "netresearch/akeneo-bootstrap:$AKENEO_VERSION || dev-master"
+
+php << 'PHP'
+    <?php
+    $json = json_decode(file_get_contents("composer.json"), true);
+    unset($json["repositories"]["akeneo"]);
+    file_put_contents("composer.json", json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+    ?>
+PHP
+
+touch ./vendor/akeneo-build-done
+
+rm -rf /tmp/akeneo-pim-community-dev

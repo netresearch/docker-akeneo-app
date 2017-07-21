@@ -46,7 +46,7 @@ class Bootstrap
         }
     }
 
-    public function generateConfiguration()
+    public function generateConfiguration($clearCacheIfRequired = true)
     {
         $this->configurationGenerated = true;
         $this->run([
@@ -55,6 +55,11 @@ class Bootstrap
             new GenerateParameters($this->output),
             new FixRequirements($this->output)
         ]);
+        if ($clearCacheIfRequired) {
+            $this->run([
+                new ClearCacheIfRequired($this->output)
+            ]);
+        }
     }
 
     public function bootAkeneo()
@@ -63,7 +68,6 @@ class Bootstrap
             $this->generateConfiguration();
         }
         $this->run([
-            new ClearCacheIfRequired($this->output),
             new BootKernel($this->output),
             new WaitForDb($this->output),
             new SeizePimInstallation($this->output),

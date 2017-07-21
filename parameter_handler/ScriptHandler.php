@@ -10,6 +10,6 @@ class ScriptHandler
     public static function buildParameters()
     {
         $bootstrap = new Bootstrap(new ConsoleOutput());
-        $bootstrap->generateConfiguration();
+        $bootstrap->generateConfiguration(false);
     }
 }

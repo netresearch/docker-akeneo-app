@@ -4,14 +4,12 @@ ARG AKENEO_VERSION
 ARG AKENEO_DIRECTORY
 ARG PACKAGES_DIRECTORY
 
-COPY ./build-akeneo /usr/local/bin
-RUN chmod +x /usr/local/bin/build-akeneo
-RUN build-akeneo
-WORKDIR ${AKENEO_DIRECTORY}
+COPY ./bin/akeneo-project /usr/local/bin
+RUN chmod +x /usr/local/bin/akeneo-project
+RUN akeneo-project create -v ${AKENEO_VERSION} -i ${AKENEO_DIRECTORY} -p ${PACKAGES_DIRECTORY}
 
 FROM alpine
 ARG AKENEO_DIRECTORY
-ARG PACKAGES_DIRECTORY
-COPY --from=builder /usr/local/bin/build-akeneo /opt/akeneo/bin/build-akeneo
-COPY --from=builder ${PACKAGES_DIRECTORY} ${PACKAGES_DIRECTORY}
+COPY --from=builder /usr/local/bin/akeneo-project /opt/akeneo-bootstrap/bin/akeneo-project
 COPY --from=builder ${AKENEO_DIRECTORY} ${AKENEO_DIRECTORY}
+WORKDIR ${AKENEO_DIRECTORY}

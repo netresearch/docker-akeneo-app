@@ -20,5 +20,8 @@
             "Incenteev\\ParameterHandler\\": "parameter_handler/"
         }
     },
-    "bin": ["bin/akeneo-bootstrap"]
+    "bin": [
+        "bin/akeneo-bootstrap",
+        "bin/akeneo-project"
+    ]
 }

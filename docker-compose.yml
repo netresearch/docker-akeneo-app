@@ -1,10 +1,13 @@
 version: '3'
 services:
+  acme_packages:
+    image: "alpine"
+    volumes:
+      - "packages:${PACKAGES_DIRECTORY}"
   app:
-    image: "netresearch/akeneo-app"
+    image: "netresearch/akeneo-app:${AKENEO_VERSION}"
     volumes:
       - "akeneo:${AKENEO_DIRECTORY}"
-      - "packages:${PACKAGES_DIRECTORY}"
   web:
     image: "netresearch/akeneo-php:apache"
     restart: "always"
