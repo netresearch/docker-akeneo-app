@@ -1,0 +1,34 @@
+sudo: required
+
+services:
+  - docker
+
+env:
+  global:
+  - REPO=netresearch/akeneo-app
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install docker-ce
+  - docker -v
+
+script:
+ - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+ - >
+     eval $(cat .env);
+     if [ "$TAG" != "latest" ]; then
+       AKENEO_VERSION=$TAG;
+     fi;
+     echo "Building with:";
+     echo "  AKENEO_VERSION: $AKENEO_VERSION";
+     echo "  AKENEO_DIRECTORY: $AKENEO_DIRECTORY";
+     echo "  PACKAGES_DIRECTORY: $PACKAGES_DIRECTORY";
+     docker build \
+       --build-arg "AKENEO_VERSION=$AKENEO_VERSION" \
+       --build-arg "AKENEO_DIRECTORY=$AKENEO_DIRECTORY" \
+       --build-arg "PACKAGES_DIRECTORY=$PACKAGES_DIRECTORY" \
+       -t $REPO:$TAG .
+
+after_success:
+ - docker login -u $DOCKER_USER -p $DOCKER_PASS
+ - docker push $REPO:$TAG

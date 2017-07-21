@@ -228,11 +228,9 @@ Routing files are to be registered as objects in an object in `extra.netresearch
 
 # Docker image
 
-This Docker image is an alpine container an Akeneo project setup with [akeneo-project](#akeneo-project) in `/var/www/html` and the `akeneo-project` script itself in `/opt/akeneo-bootstrap/bin/akeneo-project`.
+The Docker image [netresearch/akeneo-app](https://hub.docker.com/r/netresearch/akeneo-app) is an alpine image containing an Akeneo project setup with [akeneo-project](#akeneo-project) in `/var/www/html` and the `akeneo-project` script itself in `/opt/akeneo-bootstrap/bin/akeneo-project`.
 
 When this image is used with [netresearch/akeneo-php:apache](https://hub.docker.com/r/netresearch/akeneo-php) or [netresearch/akeneo-php](https://hub.docker.com/r/netresearch/akeneo-php) with `akeneo-php-entrypoint` set as entrypoint [akeneo-bootstrap](#akeneo-bootstrap) will automatically be invoked on container start.
-
-**Please see [above](#environment-variables) for the available environment variables** 
 
 ## Run
 
@@ -246,7 +244,7 @@ In order to **develop with Akeneo**, you can additionally use this [docker-compo
 
 ## Environment variables
 
-Those of [akeneo-bootstrap](#environment-variables).
+As those for [akeneo-bootstrap](#environment-variables).
 
 ## Customize Akeneo
 
