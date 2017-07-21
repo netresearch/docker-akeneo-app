@@ -3,6 +3,24 @@ This is
 1. The composer package [netresearch/akeneo-bootstrap](https://packagist.org/packages/netresearch/akeneo-bootstrap) to bootstrap Akeneo projects and configure them from other packages rather than via their own config files (better updatability).
 2. The Docker image [netresearch/akeneo-app](https://hub.docker.com/r/netresearch/akeneo-app/) providing a ready built [Akeneo PIM](https://www.akeneo.com/) project, ready to run with MongoDB and optimized for best possible updatability utilizing [akeneo-bootstrap](#composer-package-akeneo-bootstrap).
 
+# Contents
+
+- [Composer package](#composer-package)
+  - [`akeneo-project`](#akeneo-project)
+    - [Installation](#installation)
+    - [Creating a project](#creating-a-project)
+    - [Up/downgrading a project](#updowngrading-a-project)
+  - [`akeneo-bootstrap`](#akeneo-bootstrap)
+    - [Environment variables](#environment-variables)
+    - [Customizing Akeneo from other packages](#customizing-akeneo-from-other-packages)
+      - [Adding bundles](#adding-bundles)
+      - [Adding configs](#adding-configs)
+      - [Adding routings](#adding-routings)
+- [Docker image](#docker-image)
+  - [Run](#run)
+  - [Environment variables](#environment-variables)
+  - [Customize Akeneo](#customize-akeneo)
+
 # Composer package
 
 The common way to install Akeneo is to create a composer project from [akeneo/pim-community-standard](https://packagist.org/packages/akeneo/pim-community-standard) which has major drawbacks:
@@ -13,12 +31,12 @@ The common way to install Akeneo is to create a composer project from [akeneo/pi
 
 You could also download a ready built Akeneo project - the updating issues however remain.
 
-*akeneo-bootstrap* provides a mechanism to work around the problems above:
+This package provides a mechanism to work around the problems above:
 
 1. It provides the plain shell script [akeneo-project](#akeneo-project) to create or upgrade an Akeneo project.
-2. It provides the command line application [akeneo-bootstrap](#akeneo-bootstrap) which generates configuration in the project from according instructions in installed packages.
+2. It provides the command line application [akeneo-bootstrap](#akeneo-bootstrap) which generates configuration in the project from according instructions in installed packages and sets Akeneo up for running.
 
-The package replaces [incenteev/parameter-handler](https://github.com/Incenteev/ParameterHandler) which is registered for composers post-install-cmd and post-update-cmd and thus is invoked automatically to generate the AppKernel, configs and routings when packages are installed (steps 1 - 4 of [akeneo-bootstrap](#akeneo-bootstrap) command).
+It replaces [incenteev/parameter-handler](https://github.com/Incenteev/ParameterHandler) which is registered for composers post-install-cmd and post-update-cmd and thus is invoked automatically to generate the AppKernel, configs and routings when packages are installed (steps 1 - 4 of [akeneo-bootstrap](#akeneo-bootstrap) command).
 
 ## `akeneo-project`
 
@@ -85,7 +103,7 @@ The `akeneo-bootstrap` command is shipped with the composer package `netresearch
 | EXPORT_PATH | Set this to change the directory to where exports should go. | /var/opt/akeneo/exports |
 | IMPORT_PATH | Set this to change the directory from where imports should be read. | /var/opt/akeneo/imports |
 
-The configuration via environment variables was chosen because the package is primarily targeted at installations in Docker containers. If you don't use such and don't want to clutter your environment variables you can with the above, you could put them into an [.env file](https://docs.docker.com/compose/env-file/) and run [akeneo-bootstrap](#akeneo-bootstrap) and composer commands like this:
+The configuration via environment variables was chosen because the package is primarily targeted at installations in Docker containers. If you don't use such and don't want to clutter your environment variables with the above, you could put them into an [.env file](https://docs.docker.com/compose/env-file/) and run [akeneo-bootstrap](#akeneo-bootstrap) and composer commands like this:
 
 ```bash
 eval $(cat .env) composer update
@@ -214,6 +232,8 @@ This Docker image is an alpine container an Akeneo project setup with [akeneo-pr
 
 When this image is used with [netresearch/akeneo-php:apache](https://hub.docker.com/r/netresearch/akeneo-php) or [netresearch/akeneo-php](https://hub.docker.com/r/netresearch/akeneo-php) with `akeneo-php-entrypoint` set as entrypoint [akeneo-bootstrap](#akeneo-bootstrap) will automatically be invoked on container start.
 
+**Please see [above](#environment-variables) for the available environment variables** 
+
 ## Run
 
 This image only contains source files. To run Akeneo with it, PHP, a MySQL/MariaDB database and - both optionally an Apache and a MongoDB - are required.
@@ -223,6 +243,10 @@ Akeneo has several PHP platform dependencies which is why we recommend using our
 It's best to run it using docker-compose. See [here](https://github.com/netresearch/docker-akeneo-app/blob/master/docker-compose.yml) for an example.
 
 In order to **develop with Akeneo**, you can additionally use this [docker-compose.override.yml](https://github.com/netresearch/docker-akeneo-app/blob/master/docker-compose.override.yml) along with a Dockerfile like the one below.
+
+## Environment variables
+
+Those of [akeneo-bootstrap](#environment-variables).
 
 ## Customize Akeneo
 
