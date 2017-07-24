@@ -74,9 +74,10 @@ The `akeneo-bootstrap` command is shipped with the composer package `netresearch
 5. Clear cache if required by any of the previous steps
 6. Boot the kernel
 7. Wait for the database to be up
-8. Seize the Akeneo installation (check requirements, install / upgrade DB, dump assets)
+8. Ensure the Akeneo installation (check requirements, install / upgrade DB, dump assets)
 9. Set export/import paths
-10. chown the directories required to be writable
+10. Link static directories if required (Akeneo sometimes doesn't use the configured directories but fixed paths like `app/logs` - this step symlinks those directories to the configured ones like [LOG_DIR](#environment-variables))
+11. chown the directories required to be writable from web (see [WEB_USER](#environment-variables))
 
 ### Environment variables
 
@@ -102,6 +103,7 @@ The `akeneo-bootstrap` command is shipped with the composer package `netresearch
 | ARCHIVE_DIR | archive_dir | /var/opt/akeneo/archive |
 | EXPORT_PATH | Set this to change the directory to where exports should go. | /var/opt/akeneo/exports |
 | IMPORT_PATH | Set this to change the directory from where imports should be read. | /var/opt/akeneo/imports |
+| WEB_USER | User name to be set as owner for directories that need to be writable by Akeneo from Web | www-data.www-data |
 
 The configuration via environment variables was chosen because the package is primarily targeted at installations in Docker containers. If you don't use such and don't want to clutter your environment variables with the above, you could put them into an [.env file](https://docs.docker.com/compose/env-file/) and run [akeneo-bootstrap](#akeneo-bootstrap) and composer commands like this:
 

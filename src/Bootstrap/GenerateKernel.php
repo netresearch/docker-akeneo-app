@@ -30,7 +30,7 @@ class GenerateKernel extends BootstrapAbstract
         $kernel = new \AppKernel('prod', false);
         $this->setKernel($kernel);
 
-        ChownDirectories::registerDirectories([$kernel->getCacheDir(), $kernel->getLogDir()]);
+        EnsureChownDirectories::registerDirectories([$kernel->getCacheDir(), $kernel->getLogDir()]);
     }
 
     /**

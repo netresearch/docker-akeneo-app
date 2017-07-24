@@ -3,6 +3,8 @@
 namespace Netresearch\AkeneoBootstrap\Bootstrap;
 
 
+use Netresearch\AkeneoBootstrap\Util\Composer;
+
 class FixRequirements extends BootstrapAbstract
 {
     public function getMessage()
@@ -17,7 +19,7 @@ class FixRequirements extends BootstrapAbstract
         $logDir = $kernel->getLogDir();
 
         $this->replace(
-            $kernel->getRootDir() . '/OroRequirements.php',
+            'OroRequirements.php',
             [
                 "'web/bundles'" => '"$baseDir/web/bundles"',
                 '$baseDir.\'/\'.$directory' => '$directory',
@@ -26,7 +28,7 @@ class FixRequirements extends BootstrapAbstract
             ]
         );
         $this->replace(
-            $kernel->getRootDir() . '/SymfonyRequirements.php',
+            'SymfonyRequirements.php',
             [
                 "__DIR__.'/../var/cache'" => "'{$cacheDir}'",
                 "__DIR__.'/../var/logs'" => "'{$logDir}'",
@@ -38,11 +40,12 @@ class FixRequirements extends BootstrapAbstract
 
     protected function replace($file, $replacements)
     {
-        $contents = file_get_contents($file);
+
+        $contents = file_get_contents(Composer::getVendorDir() . '/akeneo/pim-community-dev/app/' . $file);
         foreach ($replacements as $search => $replacement) {
             $contents = str_replace($search, $replacement, $contents);
         }
-        $this->fs->dumpFile($file, $contents);
+        $this->fs->dumpFile($this->getKernel()->getRootDir() . '/' . $file, $contents);
     }
 
 }

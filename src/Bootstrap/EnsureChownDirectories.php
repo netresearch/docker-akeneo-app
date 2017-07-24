@@ -5,7 +5,7 @@ namespace Netresearch\AkeneoBootstrap\Bootstrap;
 
 use Symfony\Component\Process\Process;
 
-class ChownDirectories extends BootstrapAbstract
+class EnsureChownDirectories extends BootstrapAbstract
 {
     protected $chown;
 
@@ -18,21 +18,12 @@ class ChownDirectories extends BootstrapAbstract
 
     public function init()
     {
-        $this->chown = getenv('WEB_USER');
-        if (!$this->chown) {
-            if ($apacheEnvFile = getenv('APACHE_ENVVARS')) {
-                $process = new Process(
-                    'bash -c \'source ' . escapeshellarg($apacheEnvFile)
-                    . ' && echo "$APACHE_RUN_USER.$APACHE_RUN_GROUP"\'');
-                $process->run();
-                $this->chown = trim($process->getOutput());
-            }
-        }
+        $this->chown = getenv('WEB_USER') ?: 'www-data.www-data';
     }
 
     public function getMessage()
     {
-        return $this->chown ? "Seizing chown ({$this->chown})" : null;
+        return $this->chown ? "Ensuring chown ({$this->chown})" : null;
     }
 
     public function run()

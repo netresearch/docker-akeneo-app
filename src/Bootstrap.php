@@ -5,14 +5,15 @@ namespace Netresearch\AkeneoBootstrap;
 
 
 use Netresearch\AkeneoBootstrap\Bootstrap\BootKernel;
-use Netresearch\AkeneoBootstrap\Bootstrap\ChownDirectories;
+use Netresearch\AkeneoBootstrap\Bootstrap\EnsureChownDirectories;
 use Netresearch\AkeneoBootstrap\Bootstrap\ClearCacheIfRequired;
 use Netresearch\AkeneoBootstrap\Bootstrap\FixRequirements;
 use Netresearch\AkeneoBootstrap\Bootstrap\GenerateKernel;
 use Netresearch\AkeneoBootstrap\Bootstrap\BootstrapInterface;
 use Netresearch\AkeneoBootstrap\Bootstrap\GenerateConfigs;
 use Netresearch\AkeneoBootstrap\Bootstrap\GenerateParameters;
-use Netresearch\AkeneoBootstrap\Bootstrap\SeizePimInstallation;
+use Netresearch\AkeneoBootstrap\Bootstrap\LinkStaticDirectories;
+use Netresearch\AkeneoBootstrap\Bootstrap\EnsurePimInstallation;
 use Netresearch\AkeneoBootstrap\Bootstrap\SetExportImportPaths;
 use Netresearch\AkeneoBootstrap\Bootstrap\WaitForDb;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -70,9 +71,10 @@ class Bootstrap
         $this->run([
             new BootKernel($this->output),
             new WaitForDb($this->output),
-            new SeizePimInstallation($this->output),
+            new EnsurePimInstallation($this->output),
             new SetExportImportPaths($this->output),
-            new ChownDirectories($this->output)
+            new LinkStaticDirectories($this->output),
+            new EnsureChownDirectories($this->output)
         ]);
     }
 }

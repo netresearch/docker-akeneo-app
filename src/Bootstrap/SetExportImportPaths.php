@@ -43,7 +43,7 @@ class SetExportImportPaths extends BootstrapAbstract
             }
         }
         $this->fs->mkdir($paths);
-        ChownDirectories::registerDirectories($paths);
+        EnsureChownDirectories::registerDirectories($paths);
     }
 
 }

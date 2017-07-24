@@ -2,11 +2,16 @@ FROM netresearch/akeneo-php:5 as builder
 
 ARG AKENEO_VERSION
 ARG AKENEO_DIRECTORY
+ARG BOOTSTRAP_VERSION
 ARG PACKAGES_DIRECTORY
 
 COPY ./bin/akeneo-project /usr/local/bin
 RUN chmod +x /usr/local/bin/akeneo-project
-RUN akeneo-project create -v ${AKENEO_VERSION} -i ${AKENEO_DIRECTORY} -p ${PACKAGES_DIRECTORY}
+RUN akeneo-project create \
+    -v "${AKENEO_VERSION}" \
+    -i "${AKENEO_DIRECTORY}" \
+    -p "${PACKAGES_DIRECTORY}" \
+    -b "${BOOTSTRAP_VERSION}"
 
 FROM alpine
 ARG AKENEO_DIRECTORY

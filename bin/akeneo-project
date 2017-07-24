@@ -7,13 +7,14 @@ unset PACKAGES_DIRECTORY
 COMMAND="$1"
 shift
 
-while getopts hfi:p:v: arg; do
+while getopts hfi:p:v:b: arg; do
   case $arg in
     h )  SHOW_HELP=true ;;
     f )  FORCE=true ;;
     i )  if [ "$OPTARG" != "" ]; then INSTALL_DIRECTORY="$OPTARG"; fi ;;
     p )  if [ "$OPTARG" != "" ]; then PACKAGES_DIRECTORY="$OPTARG"; fi ;;
     v )  if [ "$OPTARG" != "" ]; then AKENEO_VERSION="$OPTARG"; fi ;;
+    b )  if [ "$OPTARG" != "" ]; then BOOTSTRAP_VERSION="$OPTARG"; fi ;;
     \? ) echo "Run $0 -h to show help" exit 2 ;;
   esac
 done
@@ -35,8 +36,13 @@ Commands:
 Options:
   -h                     Display this help message
   -v=AKENEO_VERSION      The (new) Akeneo version to install (required)
+  -b=BOOTSTRAP_VERSION   The version of netresearch/akeneo-bootstrap to
+                         install
+                         (default: 'AKENEO_VERSION || dev-master')
   -p=PACKAGES_DIRECTORY  Path to a local package directory
-  -i=INSTALL_DIRECTORY   The installation directory (default: $(pwd) )
+                         (no default but present kept on upgrade)
+  -i=INSTALL_DIRECTORY   The installation directory
+                         (default: '$(pwd)')
   -f                     When creating:
                            upgrade project when INSTALL_DIRECTORY is
                            not empty
@@ -50,6 +56,9 @@ if [ -z "$AKENEO_VERSION" ]; then
     echo "Missing option: -v"
     echo "Run $0 -h to show help"
     exit 1
+fi
+if [ -z "$BOOTSTRAP_VERSION" ]; then
+    BOOTSTRAP_VERSION="$AKENEO_VERSION || dev-master"
 fi
 if [ -e "$INSTALL_DIRECTORY" ] && [ ! -d "$INSTALL_DIRECTORY" ]; then
     echo "$INSTALL_DIRECTORY is not a directory"
@@ -173,7 +182,7 @@ if [ "$COMMAND" = "upgrade" ]; then
 fi
 
 echo "Installing..."
-composer require "doctrine/mongodb-odm-bundle" "netresearch/akeneo-bootstrap:$AKENEO_VERSION || dev-master"
+composer require "doctrine/mongodb-odm-bundle" "netresearch/akeneo-bootstrap:$BOOTSTRAP_VERSION"
 
 php << 'PHP'
     <?php

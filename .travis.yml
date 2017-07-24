@@ -16,17 +16,21 @@ script:
  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
  - >
      eval $(cat .env);
+     BOOTSTRAP_VERSION="dev-master";
      if [ "$TAG" != "latest" ]; then
        AKENEO_VERSION=$TAG;
+       BOOTSTRAP_VERSION=$TAG
      fi;
      echo "Building with:";
      echo "  AKENEO_VERSION: $AKENEO_VERSION";
      echo "  AKENEO_DIRECTORY: $AKENEO_DIRECTORY";
      echo "  PACKAGES_DIRECTORY: $PACKAGES_DIRECTORY";
+     echo "  BOOTSTRAP_VERSION: $BOOTSTRAP_VERSION";
      docker build \
        --build-arg "AKENEO_VERSION=$AKENEO_VERSION" \
        --build-arg "AKENEO_DIRECTORY=$AKENEO_DIRECTORY" \
        --build-arg "PACKAGES_DIRECTORY=$PACKAGES_DIRECTORY" \
+       --build-arg "BOOTSTRAP_VERSION=$BOOTSTRAP_VERSION" \
        -t $REPO:$TAG .
 
 after_success:

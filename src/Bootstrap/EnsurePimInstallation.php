@@ -6,7 +6,7 @@ namespace Netresearch\AkeneoBootstrap\Bootstrap;
 
 use Akeneo\Bundle\StorageUtilsBundle\DependencyInjection\AkeneoStorageUtilsExtension;
 
-class SeizePimInstallation extends BootstrapAbstract
+class EnsurePimInstallation extends BootstrapAbstract
 {
     protected $isDbInstalled;
 
@@ -23,14 +23,14 @@ class SeizePimInstallation extends BootstrapAbstract
 
     public function getMessage()
     {
-        return ($this->isDbInstalled ? 'Seizing' : 'Running') . ' installation';
+        return ($this->isDbInstalled ? 'Ensuring' : 'Running') . ' installation';
     }
 
     public function run()
     {
         $dirs = $this->getKernel()->getContainer()->get('pim_installer.directories_registry')->getDirectories();
         $this->fs->mkdir($dirs);
-        ChownDirectories::registerDirectories($dirs);
+        EnsureChownDirectories::registerDirectories($dirs);
 
         $this->runCommand('pim:installer:check-requirements');
 
@@ -45,7 +45,7 @@ class SeizePimInstallation extends BootstrapAbstract
         }
 
         $this->runCommand('pim:installer:assets');
-        ChownDirectories::registerDirectories([
+        EnsureChownDirectories::registerDirectories([
             $this->getKernel()->getRootDir() . '/../web/css',
             $this->getKernel()->getRootDir() . '/../web/js',
         ]);
