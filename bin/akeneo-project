@@ -1,41 +1,28 @@
 #!/bin/sh
 set -e
 
+# The following line is replaced from Dockerfile
+# with the currently built Akeneo version:
 unset AKENEO_VERSION
+
 INSTALL_DIRECTORY=$(pwd)
 unset PACKAGES_DIRECTORY
-COMMAND="$1"
-shift
 
-while getopts hfi:p:v:b: arg; do
-  case $arg in
-    h )  SHOW_HELP=true ;;
-    f )  FORCE=true ;;
-    i )  if [ "$OPTARG" != "" ]; then INSTALL_DIRECTORY="$OPTARG"; fi ;;
-    p )  if [ "$OPTARG" != "" ]; then PACKAGES_DIRECTORY="$OPTARG"; fi ;;
-    v )  if [ "$OPTARG" != "" ]; then AKENEO_VERSION="$OPTARG"; fi ;;
-    b )  if [ "$OPTARG" != "" ]; then BOOTSTRAP_VERSION="$OPTARG"; fi ;;
-    \? ) echo "Run $0 -h to show help" exit 2 ;;
-  esac
-done
-shift $((OPTIND-1)) # remove parsed options and args from $@ list
-
-if [ $SHOW_HELP ]; then
-echo "
+HELP="
 Akeneo Bootstrap Project Setup
 
-This script sets up the sources for an Akeneo Project
+This script sets up the sources for an Akeneo "$(if [ ! -z "$AKENEO_VERSION" ]; then echo "$AKENEO_VERSION "; fi)"Project
 
 Usage:
-  $0 command -v AKENEO_VERSION [options]
+  $0 command "$(if [ -z "$AKENEO_VERSION" ]; then echo "-v AKENEO_VERSION "; fi)"[options]
 
 Commands:
   create   Create a project
   upgrade  Upgrade a project
 
 Options:
-  -h                     Display this help message
-  -v=AKENEO_VERSION      The (new) Akeneo version to install (required)
+  -h                     Display this help message"$(if [ -z "$AKENEO_VERSION" ]; then echo "
+  -v=AKENEO_VERSION      The (new) Akeneo version to install (required)"; fi)"
   -b=BOOTSTRAP_VERSION   The version of netresearch/akeneo-bootstrap to
                          install
                          (default: 'AKENEO_VERSION || dev-master')
@@ -50,8 +37,25 @@ Options:
                            create project when no composer.json could
                            be found in INSTALL_DIRECTORY
   -s                     Exit with code 0 even on errors"
-exit 0
+
+if [ "$1" = "create" ] || [ "$1" = "upgrade" ]; then
+    COMMAND="$1"
+    shift
 fi
+
+while getopts hfi:p:v:b: arg; do
+  case $arg in
+    h )  echo "$HELP" && exit 0 ;;
+    f )  FORCE=true ;;
+    i )  if [ "$OPTARG" != "" ]; then INSTALL_DIRECTORY="$OPTARG"; fi ;;
+    p )  if [ "$OPTARG" != "" ]; then PACKAGES_DIRECTORY="$OPTARG"; fi ;;
+    v )  if [ "$OPTARG" != "" ]; then AKENEO_VERSION="$OPTARG"; fi ;;
+    b )  if [ "$OPTARG" != "" ]; then BOOTSTRAP_VERSION="$OPTARG"; fi ;;
+    \? ) echo "Run $0 -h to show help" exit 2 ;;
+  esac
+done
+shift $((OPTIND-1)) # remove parsed options and args from $@ list
+
 if [ -z "$AKENEO_VERSION" ]; then
     echo "Missing option: -v"
     echo "Run $0 -h to show help"
