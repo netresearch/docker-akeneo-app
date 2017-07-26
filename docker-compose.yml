@@ -11,6 +11,8 @@ services:
   web:
     image: "netresearch/akeneo-php:apache"
     restart: "always"
+    depends_on:
+      - "app"
     links:
       - "mariadb:db"
       - "mongo:mongodb"
