@@ -20,7 +20,7 @@ then
     err=1
 fi
 
-if [ $err = 1 ]
+if [ $err ]
 then
     echo >&2 "Please commit or stash them."
     exit 1

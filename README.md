@@ -16,6 +16,7 @@ This is
       - [Adding bundles](#adding-bundles)
       - [Adding configs](#adding-configs)
       - [Adding routings](#adding-routings)
+      - [Adding custom bootstraps](#adding-custom-bootstraps)
 - [Docker image](#docker-image)
   - [Run](#run)
   - [Environment variables](#environment-variables)
@@ -113,7 +114,7 @@ eval $(cat .env) composer update
 
 ## Customizing Akeneo from other packages
 
-[akeneo-bootstrap](#akeneo-bootstrap) will scan all installed packages for settings in their composer.json allowing you to register Bundles, configs and routings to customize Akeneo like so:
+[akeneo-bootstrap](#akeneo-bootstrap) will scan all installed packages for settings in their composer.json allowing you to register Bundles, configs, routings and custom bootstrap steps to customize Akeneo like so:
 
 ```json
 {
@@ -124,6 +125,12 @@ eval $(cat .env) composer update
    },
    "extra": {
        "netresearch/akeneo-bootstrap": {
+            "generate": [
+                "Acme\\AkeneoConfig\\Bootstrap\\Generate"
+            ],
+            "boot": [
+                "Acme\\AkeneoConfig\\Bootstrap\\Boot"
+            ],
             "bundles": [
                 { "class": "Pim\\Bundle\\CustomEntityBundle\\PimCustomEntityBundle" }
             ],
@@ -227,6 +234,50 @@ Routing files are to be registered as objects in an object in `extra.netresearch
     }
 }
 ```
+
+### Adding custom bootstraps
+
+There are two scopes of bootstraps: **generate** (Akeneo/DB not necessarily initialized; invoked after `composer update/install` and from `./bin/akeneo-bootstrap`) and **boot** (Akeneo/DB ready to run, invoked only from `./bin/akeneo-bootstrap` right after `generate`). Custom bootstrap classes can be registered for each of those scopes as array of class names in `extra.netresearch/akeneo-bootstrap.{SCOPE}` in your composer.json. Each of those classes have to implement `\Netresearch\AkeneoBootstrap\Bootstrap\BootstrapInterface`.
+
+```json
+{
+   "name": "acme/akeneo-config",
+   "version": "1.0.0",
+   "extra": {
+       "netresearch/akeneo-bootstrap": {
+            "generate": [
+                "Acme\\AkeneoConfig\\Bootstrap\\Generate"
+            ],
+            "boot": [
+                "Acme\\AkeneoConfig\\Bootstrap\\Boot"
+            ]
+        }
+    }
+}
+```
+
+A bootstrap could for instance look like this:
+
+```php
+<?php
+namespace Acme\AkeneoConfig\Bootstrap;
+
+use \Netresearch\AkeneoBootstrap\Bootstrap\BootstrapAbstract;
+
+class Generate extends BootstrapAbstract {
+    public function getMessage() {
+        return 'Forcing cache to be cleared'
+            . ' (cache dir: ' . $this->getKernel()->getCacheDir() . ')';
+    }
+
+    public function run()
+    {
+        $this->isCacheClearRequired(true);
+    }
+}
+```
+
+Have a look at the [present bootstraps](https://github.com/netresearch/docker-akeneo-app/tree/master/src/Bootstrap) for further examples.
 
 # Docker image
 

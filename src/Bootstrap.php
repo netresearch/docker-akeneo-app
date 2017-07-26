@@ -16,6 +16,7 @@ use Netresearch\AkeneoBootstrap\Bootstrap\LinkStaticDirectories;
 use Netresearch\AkeneoBootstrap\Bootstrap\EnsurePimInstallation;
 use Netresearch\AkeneoBootstrap\Bootstrap\SetExportImportPaths;
 use Netresearch\AkeneoBootstrap\Bootstrap\WaitForDb;
+use Netresearch\AkeneoBootstrap\Util\Composer;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Bootstrap
@@ -47,6 +48,31 @@ class Bootstrap
         }
     }
 
+    protected function runFromPackages($type)
+    {
+        $bootstraps = [];
+        foreach (Composer::getAkeneoBootstrapPackageExtras() as $packageName => $packageExtra) {
+            if (array_key_exists($type, $packageExtra)) {
+                $classes = $packageExtra[$type];
+                $path = 'extra.' . Composer::EXTRA_KEY . '.' . $type;
+                if (!is_array($classes)) {
+                    throw new \RuntimeException("{$path} must be array in {$packageName}/composer.json");
+                }
+                foreach ($classes as $i => $class) {
+                    if (!is_string($class) || !class_exists($class)) {
+                        throw new \RuntimeException("{$path}.{$i} must be valid class name in {$packageName}/composer.json");
+                    }
+                    $interface = 'Netresearch\\AkeneoBootstrap\\Bootstrap\\BootstrapInterface';
+                    if (!in_array($interface, class_implements($class))) {
+                        throw new \RuntimeException("$class must implement $interface");
+                    }
+                    $bootstraps[] = new $class($this->output);
+                }
+            }
+        }
+        $this->run($bootstraps);
+    }
+
     public function generateConfiguration($clearCacheIfRequired = true)
     {
         $this->configurationGenerated = true;
@@ -56,6 +82,7 @@ class Bootstrap
             new GenerateParameters($this->output),
             new FixRequirements($this->output)
         ]);
+        $this->runFromPackages('generate');
         if ($clearCacheIfRequired) {
             $this->run([
                 new ClearCacheIfRequired($this->output)
@@ -76,5 +103,6 @@ class Bootstrap
             new LinkStaticDirectories($this->output),
             new EnsureChownDirectories($this->output)
         ]);
+        $this->runFromPackages('boot');
     }
 }
