@@ -7,6 +7,7 @@ namespace Netresearch\AkeneoBootstrap;
 use Netresearch\AkeneoBootstrap\Bootstrap\BootKernel;
 use Netresearch\AkeneoBootstrap\Bootstrap\EnsureChownDirectories;
 use Netresearch\AkeneoBootstrap\Bootstrap\ClearCacheIfRequired;
+use Netresearch\AkeneoBootstrap\Bootstrap\FixAlwaysSymlinkedAssets;
 use Netresearch\AkeneoBootstrap\Bootstrap\FixRequirements;
 use Netresearch\AkeneoBootstrap\Bootstrap\GenerateKernel;
 use Netresearch\AkeneoBootstrap\Bootstrap\BootstrapInterface;
@@ -80,7 +81,8 @@ class Bootstrap
             new GenerateKernel($this->output),
             new GenerateConfigs($this->output),
             new GenerateParameters($this->output),
-            new FixRequirements($this->output)
+            new FixRequirements($this->output),
+            new FixAlwaysSymlinkedAssets($this->output)
         ]);
         $this->runFromPackages('generate');
         if ($clearCacheIfRequired) {

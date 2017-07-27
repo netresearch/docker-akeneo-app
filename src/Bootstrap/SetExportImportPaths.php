@@ -3,9 +3,6 @@
 
 namespace Netresearch\AkeneoBootstrap\Bootstrap;
 
-
-use Akeneo\Component\StorageUtils\Saver\BulkSaverInterface;
-
 class SetExportImportPaths extends BootstrapAbstract
 {
     public function getMessage()
@@ -17,11 +14,10 @@ class SetExportImportPaths extends BootstrapAbstract
     {
         $paths = [];
 
-        /* @var \Akeneo\Bundle\BatchBundle\Job\JobInstanceRepository $jobRepository */
-        $jobRepository = $this->getKernel()->getContainer()->get('akeneo_batch.job.job_instance_repository');
-        /* @var \Akeneo\Bundle\StorageUtilsBundle\Doctrine\Common\Saver\BaseSaver $saver */
-        $saver = $this->getKernel()->getContainer()->get('akeneo_batch.saver.job_instance');
-        $bulkAvailable = $saver instanceof BulkSaverInterface;
+        $container = $this->getKernel()->getContainer();
+        /* @var \Doctrine\ORM\EntityManager $jobManager */
+        $jobManager = $container->get('akeneo_batch.job_repository')->getJobManager();
+        $jobRepository = $jobManager->getRepository('Akeneo\Component\Batch\Model\JobInstance');
 
         foreach (['import', 'export'] as $type) {
             $path = rtrim(getenv(strtoupper($type) . '_PATH') ?: "/var/opt/akeneo/{$type}s", '/');
@@ -39,14 +35,12 @@ class SetExportImportPaths extends BootstrapAbstract
                     $parameters['filePath'] = $jobPath . '/' . basename($parameters['filePath']);
                 }
                 $job->setRawParameters($parameters);
-                if (!$bulkAvailable) {
-                    $saver->save($job);
-                }
-            }
-            if ($bulkAvailable) {
-                $saver->saveAll($jobs);
+                $jobManager->persist($job);
             }
         }
+
+        $jobManager->flush();
+
         $this->fs->mkdir($paths);
         EnsureChownDirectories::registerDirectories($paths);
     }
