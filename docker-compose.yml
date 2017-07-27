@@ -9,7 +9,7 @@ services:
     volumes:
       - "akeneo:${AKENEO_DIRECTORY}"
   web:
-    image: "netresearch/akeneo-php:apache"
+    image: "netresearch/akeneo-php:5-apache"
     restart: "always"
     depends_on:
       - "app"
