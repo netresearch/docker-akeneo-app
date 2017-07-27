@@ -23,7 +23,7 @@ services:
       - "./html:${AKENEO_DIRECTORY}"
       - "./packages:${PACKAGES_DIRECTORY}"
       - "bin:/opt/akeneo-bootstrap/bin"
-    command: [ "/opt/akeneo-bootstrap/bin/akeneo-project", "create", "-f", "-i", "${AKENEO_DIRECTORY}", "-p", "${PACKAGES_DIRECTORY}" ]
+    command: [ "/opt/akeneo-bootstrap/bin/akeneo-project", "create", "-i", "${AKENEO_DIRECTORY}", "-p", "${PACKAGES_DIRECTORY}" ]
 
 volumes:
   bin:

@@ -64,10 +64,18 @@ fi
 if [ -z "$BOOTSTRAP_VERSION" ]; then
     BOOTSTRAP_VERSION="$AKENEO_VERSION || dev-master"
 fi
+
 if [ -e "$INSTALL_DIRECTORY" ] && [ ! -d "$INSTALL_DIRECTORY" ]; then
     echo "$INSTALL_DIRECTORY is not a directory"
     exit 1
 fi
+
+if [ -f "$INSTALL_DIRECTORY/vendor/akeneo-build-done" ] && [ ! "$FORCE" ]; then
+    echo "Project already built";
+    echo "Run with -f to force rebuild";
+    exit 0;
+fi
+
 if [ "$COMMAND" = "create" ]
 then
     if [ -e "$INSTALL_DIRECTORY" ] && [ "$(ls -A $INSTALL_DIRECTORY)" ]
@@ -93,7 +101,6 @@ else
         exit 1
     fi
 fi
-
 
 mkdir -p "/tmp/akeneo-pim-community-dev"
 cd "/tmp/akeneo-pim-community-dev"
