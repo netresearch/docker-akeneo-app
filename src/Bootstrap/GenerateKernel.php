@@ -18,13 +18,11 @@ class GenerateKernel extends BootstrapAbstract
     {
         $vendorDir = Composer::getVendorDir();
         $rootDir = realpath($vendorDir . '/../app');
+
         $this->createPimKernel($rootDir, $vendorDir);
 
         $this->createAppKernel($rootDir);
 
-        if (file_exists($rootDir . '/bootstrap.php.cache')) {
-            require_once $rootDir . '/bootstrap.php.cache';
-        }
         require_once $rootDir . '/AppKernel.php';
 
         $kernel = new \AppKernel('prod', false);

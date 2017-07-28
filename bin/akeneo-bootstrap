@@ -33,5 +33,9 @@ if (!includeIfExists('./vendor/autoload.php')) {
     exit(1);
 }
 
+if (file_exists('./app/bootstrap.php.cache')) {
+    require_once './app/bootstrap.php.cache';
+}
+
 $application = new \Netresearch\AkeneoBootstrap\Console\Application();
 $application->run();
