@@ -26,6 +26,8 @@ then
     exit 1
 fi
 
+eval $(cat .env)
+
 git push
 git tag -af "$AKENEO_VERSION" -m "Tagging $AKENEO_VERSION"
 git push --tags -f
