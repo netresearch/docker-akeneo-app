@@ -60,6 +60,17 @@ class GenerateParameters extends BootstrapAbstract
             $new[$parameter] = $value;
         }
 
+        foreach ($_ENV as $envName => $envValue) {
+            if (substr($envName, 0, 10) === 'PARAMETER_') {
+                $parameter = strtolower(substr($envName, 10));
+                if (array_key_exists($parameter, $new)) {
+                    $this->output->writeln("<error>Invalid environment variable $envName - use " . strtoupper($parameter) . ' instead</error>');
+                    continue;
+                }
+                $new[$parameter] = $envValue;
+            }
+        }
+
         ksort($existing);
         ksort($new);
         $existing = Yaml::dump(['parameters' => $existing]);

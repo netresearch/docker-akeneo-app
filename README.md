@@ -1,3 +1,9 @@
+[![packagist](https://img.shields.io/packagist/v/netresearch/akeneo-bootstrap.svg?style=flat)](https://packagist.org/packages/netresearch/akeneo-bootstrap)
+[![docker pulls](https://img.shields.io/docker/pulls/netresearch/akeneo-app.svg?style=flat)](https://hub.docker.com/r/netresearch/akeneo-app/tags/)
+[![travis](http://img.shields.io/travis/netresearch/docker-akeneo-app.svg?style=flat-square)](https://travis-ci.org/netresearch/docker-akeneo-app)
+
+---
+
 This is
 
 1. The composer package [netresearch/akeneo-bootstrap](https://packagist.org/packages/netresearch/akeneo-bootstrap) to bootstrap Akeneo projects and configure them from other packages rather than via their own config files (better updatability).
@@ -105,6 +111,7 @@ The `akeneo-bootstrap` command is shipped with the composer package `netresearch
 | EXPORT_PATH | Set this to change the directory to where exports should go. | /var/opt/akeneo/exports |
 | IMPORT_PATH | Set this to change the directory from where imports should be read. | /var/opt/akeneo/imports |
 | WEB_USER | User name to be set as owner for directories that need to be writable by Akeneo from Web | www-data.www-data |
+| PARAMETER_* | Any parameter (e.g. from pim_parameters.yml) which is NOT one of the above (f.e. `PARAMETER_INSTALLER_DATA="/opt/acme/fixtures"` to [use another dataset](https://docs.akeneo.com/1.7/cookbook/setup_data/customize_dataset.html) | - |
 
 The configuration via environment variables was chosen because the package is primarily targeted at installations in Docker containers. If you don't use such and don't want to clutter your environment variables with the above, you could put them into an [.env file](https://docs.docker.com/compose/env-file/) and run [akeneo-bootstrap](#akeneo-bootstrap) and composer commands like this:
 
