@@ -26,29 +26,6 @@ then
     exit 1
 fi
 
-CURRENT_BRANCH=$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)
-
-if [ "$1" == "all" ]; then
-    echo "Updating all branches:";
-    git fetch --all
-    git checkout master
-    git pull
-    for branch in $(git for-each-ref --format='%(refname:short)' refs/heads/); do
-        git checkout "$branch"
-        if [ "$branch" != "master" ]; then
-            if [ $(git ls-remote origin | grep -sw "$branch" 2>&1>/dev/null) ]; then
-                git pull origin "$branch";
-            fi
-            git rebase master
-        fi
-        ./update.sh
-    done
-    git checkout "$CURRENT_BRANCH"
-    exit
-fi
-
-eval $(cat .env)
-
-git push -f --set-upstream origin "$CURRENT_BRANCH"
+git push
 git tag -af "$AKENEO_VERSION" -m "Tagging $AKENEO_VERSION"
 git push --tags -f
