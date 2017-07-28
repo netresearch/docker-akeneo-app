@@ -5,6 +5,10 @@ set -e
 # with the currently built Akeneo version:
 unset AKENEO_VERSION
 
+# The following line is replaced from Dockerfile
+# with the currently built BOOTSTRAP_VERSION:
+unset BOOTSTRAP_VERSION
+
 INSTALL_DIRECTORY=$(pwd)
 unset PACKAGES_DIRECTORY
 
@@ -25,7 +29,7 @@ Options:
   -v=AKENEO_VERSION      The (new) Akeneo version to install (required)"; fi)"
   -b=BOOTSTRAP_VERSION   The version of netresearch/akeneo-bootstrap to
                          install
-                         (default: 'AKENEO_VERSION || dev-master')
+                         (default: '"$(if [ -z "$BOOTSTRAP_VERSION" ]; then echo "$BOOTSTRAP_VERSION"; else echo "AKENEO_VERSION || dev-master"; fi)"')
   -p=PACKAGES_DIRECTORY  Path to a local package directory
                          (no default but present kept on upgrade)
   -i=INSTALL_DIRECTORY   The installation directory

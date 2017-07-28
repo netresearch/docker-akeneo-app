@@ -7,6 +7,7 @@ ARG PACKAGES_DIRECTORY
 
 COPY ./bin/akeneo-project /usr/local/bin
 RUN sed -i "s#unset AKENEO_VERSION#AKENEO_VERSION='${AKENEO_VERSION}'#" /usr/local/bin/akeneo-project
+RUN sed -i "s#unset BOOTSTRAP_VERSION#BOOTSTRAP_VERSION='${AKENEO_VERSION}'#" /usr/local/bin/akeneo-project
 RUN chmod +x /usr/local/bin/akeneo-project
 RUN akeneo-project create \
     -i "${AKENEO_DIRECTORY}" \
