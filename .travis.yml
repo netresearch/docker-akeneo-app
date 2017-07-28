@@ -22,6 +22,9 @@ script:
  - >
      eval $(cat .env);
      BOOTSTRAP_VERSION="dev-$TRAVIS_BRANCH";
+     if [ "$TAG_TYPE" == "1" ]; then
+       BOOTSTRAP_VERSION="$TRAVIS_BRANCH.x-dev";
+     fi;
      if [ "$TAG_TYPE" == "2" ]; then
        BOOTSTRAP_VERSION="$TAG";
      fi;
