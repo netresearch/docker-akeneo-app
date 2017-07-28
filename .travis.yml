@@ -14,12 +14,16 @@ before_install:
 
 script:
  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+ # Tag types:
+ #   0: Branch without version relation
+ #   1: Version branch (1.6/1.7)
+ #   2: Version tag (1.7.6/1.6.18)
+ - export TAG_TYPE=$(grep -o "\." <<< "$TRAVIS_BRANCH" | wc -l)
  - >
      eval $(cat .env);
-     BOOTSTRAP_VERSION="dev-master";
-     if [ "$TAG" != "latest" ]; then
-       AKENEO_VERSION=$TAG;
-       BOOTSTRAP_VERSION=$TAG
+     BOOTSTRAP_VERSION="dev-$TRAVIS_BRANCH";
+     if [ "$TAG_TYPE" == "2" ]; then
+       BOOTSTRAP_VERSION="$TAG";
      fi;
      echo "Building with:";
      echo "  AKENEO_VERSION: $AKENEO_VERSION";
@@ -31,8 +35,14 @@ script:
        --build-arg "AKENEO_DIRECTORY=$AKENEO_DIRECTORY" \
        --build-arg "PACKAGES_DIRECTORY=$PACKAGES_DIRECTORY" \
        --build-arg "BOOTSTRAP_VERSION=$BOOTSTRAP_VERSION" \
-       -t $REPO:$TAG .
+       -t "$REPO:$TAG" .
 
 after_success:
- - docker login -u $DOCKER_USER -p $DOCKER_PASS
- - docker push $REPO:$TAG
+ - >
+      docker login -u $DOCKER_USER -p $DOCKER_PASS;
+      if [ "$TAG" == "latest" ]; then
+        ALIAS=$(echo "$AKENEO_VERSION" | cut -c -3);
+        docker tag "$REPO:$TAG" "$REPO:$ALIAS";
+        docker push "$REPO:$ALIAS";
+      fi;
+      docker push "$REPO:$TAG";
