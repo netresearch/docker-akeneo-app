@@ -36,7 +36,7 @@ if [ "$1" == "all" ]; then
     for branch in $(git for-each-ref --format='%(refname:short)' refs/heads/); do
         git checkout "$branch"
         if [ "$branch" != "master" ]; then
-            if git ls-remote origin | grep -sw "$branch" 2>&1>/dev/null; then
+            if [ $(git ls-remote origin | grep -sw "$branch" 2>&1>/dev/null) ]; then
                 git pull origin "$branch";
             fi
             git rebase master
