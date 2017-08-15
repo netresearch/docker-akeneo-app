@@ -72,7 +72,7 @@ class GenerateConfigs extends BootstrapAbstract
                 $configFile[] = "    resource: routing_$postfix";
                 foreach ($routing[$environment] as $key => $route) {
                     $routingFile[] = $key . ':';
-                    $routingFile[] = '  resource: "' . $route['resource'] . '"';
+                    $configFile[] = "    resource: '%kernel.root_dir%/config/routing_$postfix'";
                     if ($route['prefix']) {
                         $routingFile[] = '  prefix: ' . $route['prefix'];
                     }
