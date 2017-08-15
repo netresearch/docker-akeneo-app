@@ -2,10 +2,7 @@
 
 namespace Netresearch\AkeneoBootstrap\Bootstrap;
 
-
 use Netresearch\AkeneoBootstrap\Util\Composer;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 class GenerateKernel extends BootstrapAbstract
 {
