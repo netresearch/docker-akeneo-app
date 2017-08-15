@@ -9,10 +9,10 @@ class GenerateConfigs extends BootstrapAbstract
 {
     protected $environments = [
         'all' => 'local.yml',
-        'behat' => 'local_behat.yml',
-        'dev' => 'local_dev.yml',
-        'prod' => 'local_prod.yml',
-        'test' => 'local_test.yml'
+        'behat' => 'behat_local.yml',
+        'dev' => 'dev_local.yml',
+        'prod' => 'prod_local.yml',
+        'test' => 'test_local.yml'
     ];
 
     public function getMessage()
