@@ -198,14 +198,14 @@ Config files are to be registered as objects in an array in `extra.netresearch/a
        "netresearch/akeneo-bootstrap": {
             "config": [
                 {
-                    "resource": "%kernel.root_dir%/../vendor/acme/akeneo-config/Resources/config/general.yml"
+                    "resource": "../../vendor/acme/akeneo-config/Resources/config/general.yml"
                 },
                 {
-                    "resource": "%kernel.root_dir%/../vendor/acme/akeneo-config/Resources/config/prod.yml",
+                    "resource": "../../vendor/acme/akeneo-config/Resources/config/prod.yml",
                     "env": "prod"
                 },
                 {
-                    "resource": "%kernel.root_dir%/../vendor/acme/akeneo-config/Resources/config/dev.yml",
+                    "resource": "../../vendor/acme/akeneo-config/Resources/config/dev.yml",
                     "env": ["dev", "test"]
                 }
             ]
@@ -229,11 +229,11 @@ Routing files are to be registered as objects in an object in `extra.netresearch
                     "resource": "@AllEnvsBundle/Resources/config/routing.yml"
                 },
                 "prod": {
-                    "resource": "%kernel.root_dir%/../vendor/acme/akeneo-config/Resources/config/routing_prod.yml",
+                    "resource": "../../vendor/acme/akeneo-config/Resources/config/routing_prod.yml",
                     "env": "prod"
                 },
                 "test": {
-                    "resource": "%kernel.root_dir%/../vendor/acme/akeneo-config/Resources/config/routing_dev.yml",
+                    "resource": "../../vendor/acme/akeneo-config/Resources/config/routing_dev.yml",
                     "env": ["dev", "test"]
                 }
             }
