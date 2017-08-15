@@ -37,7 +37,7 @@ class EnsurePimInstallation extends BootstrapAbstract
         if (!$this->isDbInstalled) {
             $this->runCommand('pim:installer:db');
         } else {
-            $this->runCommand('doctrine:schema:update');
+            $this->runCommand('doctrine:schema:update', ['--force' => true]);
             $storageDriver = $this->getKernel()->getContainer()->getParameter('pim_catalog_product_storage_driver');
             if ($storageDriver === AkeneoStorageUtilsExtension::DOCTRINE_MONGODB_ODM) {
                 $this->runCommand('doctrine:mongodb:schema:update');
