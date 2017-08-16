@@ -127,6 +127,8 @@ if [ "$COMMAND" = "create" ];
 then
     echo "Creating project..."
     composer create-project --no-install akeneo/pim-community-standard "$INSTALL_DIRECTORY" "$AKENEO_VERSION"
+    composer config preferred-install 'dist'
+    composer config extra.symfony-assets-install 'copy'
 else
     echo "Upgrading project"
     TMP_DIRECTORY="/tmp/akeneo-pim-community-standard"
@@ -148,7 +150,6 @@ PHP
     fi
 fi
 
-composer config preferred-install 'dist'
 PACKAGES_DIRECTORY="$PACKAGES_DIRECTORY" php << 'PHP'
     <?php
     $json = json_decode(file_get_contents("composer.json"), true);
