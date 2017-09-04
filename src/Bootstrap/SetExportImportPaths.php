@@ -29,9 +29,14 @@ class SetExportImportPaths extends BootstrapAbstract
             $jobs = $jobRepository->findBy(['type' => $type]);
             foreach ($jobs as $job) {
                 /* @var \Akeneo\Component\Batch\Model\JobInstance $job */
+                $jobPath = $path;
+                if ($overrideJobPath = getenv(strtoupper($job->getCode()) . '_PATH')) {
+                    $jobPath = rtrim($overrideJobPath, '/');
+                    $paths[] = $jobPath;
+                }
                 $parameters = $job->getRawParameters();
                 if (array_key_exists('filePath', $parameters) && $parameters['filePath']) {
-                    $parameters['filePath'] = $path . '/' . basename($parameters['filePath']);
+                    $parameters['filePath'] = $jobPath . '/' . basename($parameters['filePath']);
                 }
                 $job->setRawParameters($parameters);
                 if (!$bulkAvailable) {

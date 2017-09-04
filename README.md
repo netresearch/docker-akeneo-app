@@ -110,6 +110,7 @@ The `akeneo-bootstrap` command is shipped with the composer package `netresearch
 | ARCHIVE_DIR | archive_dir | /var/opt/akeneo/archive |
 | EXPORT_PATH | Set this to change the directory to where exports should go. | /var/opt/akeneo/exports |
 | IMPORT_PATH | Set this to change the directory from where imports should be read. | /var/opt/akeneo/imports |
+| *_PATH | Set this with the asterisk replaced by the job name in upper case (e.g. CATEGORY_IMPORT_PATH) to change the file path for a particular job (overrides EXPORT_PATH or IMPORT_PATH for this job) | - |
 | WEB_USER | User name to be set as owner for directories that need to be writable by Akeneo from Web | www-data.www-data |
 | PARAMETER_* | Any parameter (e.g. from pim_parameters.yml) which is NOT one of the above (f.e. `PARAMETER_INSTALLER_DATA="/opt/acme/fixtures"` to [use another dataset](https://docs.akeneo.com/1.7/cookbook/setup_data/customize_dataset.html) | - |
 
