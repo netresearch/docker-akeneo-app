@@ -200,6 +200,8 @@ fi
 echo "Installing..."
 composer require "doctrine/mongodb-odm-bundle" "netresearch/akeneo-bootstrap:$BOOTSTRAP_VERSION"
 
+chmod +x ./app/console
+
 php << 'PHP'
     <?php
     $json = json_decode(file_get_contents("composer.json"), true);
