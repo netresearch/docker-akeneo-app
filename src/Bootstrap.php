@@ -99,7 +99,7 @@ class Bootstrap
             new BootKernel($this->output),
             new WaitForDb($this->output),
             new EnsurePimInstallation($this->output),
-            new SetExportImportPaths($this->output),
+            //new SetExportImportPaths($this->output),
             new LinkStaticDirectories($this->output),
             new EnsureChownDirectories($this->output)
         ]);
