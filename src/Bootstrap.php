@@ -97,14 +97,22 @@ class Bootstrap
         if (!$this->configurationGenerated) {
             $this->generateConfiguration();
         }
-        $this->run([
+
+        $runCommands = [
             new BootKernel($this->output),
             new WaitForDb($this->output),
             new EnsurePimInstallation($this->output),
             new SetExportImportPaths($this->output),
             new LinkStaticDirectories($this->output),
             new EnsureChownDirectories($this->output)
-        ]);
+        ];
+
+        if (getenv('USE_FIXTURE_PATHS')) {
+            // removed SetExportImportPaths command
+            unset($runCommands[3]);
+        }
+
+        $this->run($runCommands);
         $this->runFromPackages('boot');
     }
 }
