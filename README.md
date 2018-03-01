@@ -113,6 +113,7 @@ The `akeneo-bootstrap` command is shipped with the composer package `netresearch
 | *_PATH | Set this with the asterisk replaced by the job name in upper case (e.g. CATEGORY_IMPORT_PATH) to change the file path for a particular job (overrides EXPORT_PATH or IMPORT_PATH for this job) | - |
 | WEB_USER | User name to be set as owner for directories that need to be writable by Akeneo from Web | www-data.www-data |
 | PARAMETER_* | Any parameter (e.g. from pim_parameters.yml) which is NOT one of the above (f.e. `PARAMETER_INSTALLER_DATA="/opt/acme/fixtures"` to [use another dataset](https://docs.akeneo.com/1.7/cookbook/setup_data/customize_dataset.html) | - |
+| USE_FIXTURE_PATHS |  Set this to use configured import and export paths from fixture files. All other configured ..._PATH will ignored. | - |
 
 The configuration via environment variables was chosen because the package is primarily targeted at installations in Docker containers. If you don't use such and don't want to clutter your environment variables with the above, you could put them into an [.env file](https://docs.docker.com/compose/env-file/) and run [akeneo-bootstrap](#akeneo-bootstrap) and composer commands like this:
 
