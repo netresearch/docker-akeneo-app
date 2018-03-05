@@ -7,11 +7,6 @@ env:
   global:
   - REPO=netresearch/akeneo-app
 
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install docker-ce
-  - docker -v
-
 script:
  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
  # Tag types:
@@ -28,6 +23,29 @@ script:
      if [ "$TAG_TYPE" == "2" ]; then
        BOOTSTRAP_VERSION="$TAG";
      fi;
+     COUNTER=0;
+     while : ; do
+       PACKAGIST_OUTPUT=$(composer show -al netresearch/akeneo-bootstrap $BOOTSTRAP_VERSION 2>&1 || "")
+       PACKAGIST_UPDATED=$(echo $PACKAGIST_OUTPUT | grep $TRAVIS_COMMIT);
+       if [ "$PACKAGIST_UPDATED" ];
+       then
+         break;
+       else
+         echo -n "Latest commit on packagist version doesn't match current - ";
+         if [ $COUNTER -lt 20 ];
+         then
+           let COUNTER+=1;
+           echo "retrying";
+           sleep 2;
+         else
+           echo "FAILED (see below)";
+           echo "Command: composer show -al netresearch/akeneo-bootstrap $BOOTSTRAP_VERSION";
+           echo "Expected commit: $TRAVIS_COMMIT";
+           echo "Output: $PACKAGIST_OUTPUT";
+           exit 1;
+         fi;
+       fi;
+     done;
      echo "Building with:";
      echo "  AKENEO_VERSION: $AKENEO_VERSION";
      echo "  AKENEO_DIRECTORY: $AKENEO_DIRECTORY";
