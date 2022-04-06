@@ -14,7 +14,7 @@ RUN akeneo-project create \
     -p "${PACKAGES_DIRECTORY}" \
     -b "${BOOTSTRAP_VERSION}"
 
-FROM alpine
+FROM alpine:3.15.4
 ARG AKENEO_DIRECTORY
 COPY --from=builder /usr/local/bin/akeneo-project /opt/akeneo-bootstrap/bin/akeneo-project
 COPY --from=builder ${AKENEO_DIRECTORY} ${AKENEO_DIRECTORY}
