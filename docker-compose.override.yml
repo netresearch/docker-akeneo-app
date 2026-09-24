@@ -17,7 +17,8 @@ services:
     volumes:
       - "./html:${AKENEO_DIRECTORY}"
       - "./packages:${PACKAGES_DIRECTORY}"
-  setup:
+  # writable: runs composer, which writes vendor/ and its cache
+  setup: # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
     image: netresearch/akeneo-php:5
     security_opt:
       - no-new-privileges:true
