@@ -19,6 +19,8 @@ services:
       - "./packages:${PACKAGES_DIRECTORY}"
   setup:
     image: netresearch/akeneo-php:5
+    security_opt:
+      - no-new-privileges:true
     volumes:
       - "./html:${AKENEO_DIRECTORY}"
       - "./packages:${PACKAGES_DIRECTORY}"

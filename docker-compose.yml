@@ -2,14 +2,24 @@ version: '3'
 services:
   acme_packages:
     image: "alpine"
+    security_opt:
+      - "no-new-privileges:true"
+    # data-only container: runs the image default /bin/sh, which exits at once
+    read_only: true
     volumes:
       - "packages:${PACKAGES_DIRECTORY}"
   app:
     image: "netresearch/akeneo-app:${AKENEO_VERSION}"
+    security_opt:
+      - "no-new-privileges:true"
+    # data-only container: runs the image default /bin/sh, which exits at once
+    read_only: true
     volumes:
       - "akeneo:${AKENEO_DIRECTORY}"
   web:
     image: "netresearch/akeneo-php:5-apache"
+    security_opt:
+      - "no-new-privileges:true"
     restart: "always"
     depends_on:
       - "app"
@@ -31,6 +41,8 @@ services:
       PIM_CATALOG_PRODUCT_STORAGE_DRIVER: "doctrine/mongodb-odm"
   mariadb:
     image: "mariadb"
+    security_opt:
+      - "no-new-privileges:true"
     restart: "always"
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
@@ -39,6 +51,8 @@ services:
       MYSQL_PASSWORD: "akeneo"
   mongo:
     image: "mongo"
+    security_opt:
+      - "no-new-privileges:true"
     restart: "always"
 
 volumes:
