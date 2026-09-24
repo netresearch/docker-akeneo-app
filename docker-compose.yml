@@ -2,14 +2,25 @@ version: '3'
 services:
   acme_packages:
     image: "alpine"
+    security_opt:
+      - "no-new-privileges:true"
+    # data-only container: runs the image default /bin/sh, which exits at once
+    read_only: true
     volumes:
       - "packages:${PACKAGES_DIRECTORY}"
   app:
     image: "netresearch/akeneo-app:${AKENEO_VERSION}"
+    security_opt:
+      - "no-new-privileges:true"
+    # data-only container: runs the image default /bin/sh, which exits at once
+    read_only: true
     volumes:
       - "akeneo:${AKENEO_DIRECTORY}"
-  web:
+  # writable: akeneo-bootstrap writes configs, cache and logs and runs chown -R before Apache starts
+  web: # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
     image: "netresearch/akeneo-php:5-apache"
+    security_opt:
+      - "no-new-privileges:true"
     restart: "always"
     depends_on:
       - "app"
@@ -29,16 +40,22 @@ services:
       MONGODB_SERVER: "mongodb://mongodb:27017"
       MONGODB_DATABASE: "akeneo"
       PIM_CATALOG_PRODUCT_STORAGE_DRIVER: "doctrine/mongodb-odm"
-  mariadb:
+  # writable: unpinned mariadb image with no documented write set beyond its data volume
+  mariadb: # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
     image: "mariadb"
+    security_opt:
+      - "no-new-privileges:true"
     restart: "always"
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_DATABASE: "akeneo"
       MYSQL_USER: "akeneo"
       MYSQL_PASSWORD: "akeneo"
-  mongo:
+  # writable: unpinned mongo image with no documented write set beyond its data volume
+  mongo: # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
     image: "mongo"
+    security_opt:
+      - "no-new-privileges:true"
     restart: "always"
 
 volumes:
